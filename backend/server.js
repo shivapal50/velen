@@ -71,38 +71,43 @@ if (!EMAIL_USER || !EMAIL_PASSWORD) {
 
 // Function to send unauthorized access alert email
 const sendUnauthorizedAlert = async (attemptedName, ip, timestamp) => {
-  if (!transporter) {
-    console.log('⚠️ Email transporter not available, skipping alert');
-    return;
-  }
-
   try {
+    if (!transporter) {
+      console.log("⚠️ Email transporter not configured");
+      return false;
+    }
+
+    if (!ALERT_EMAIL) {
+      console.log("⚠️ ALERT_EMAIL not set");
+      return false;
+    }
+
     const mailOptions = {
-      from: EMAIL_USER,
+      from: `"Valentine Security 💝" <${EMAIL_USER}>`,
       to: ALERT_EMAIL,
-      subject: '🚨 Unauthorized Access Attempt on Valentine Site',
+      subject: "🚨 Unauthorized Access Attempt",
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; border-radius: 8px;">
-          <h2 style="color: #e74c3c;">⚠️ Unauthorized Access Alert</h2>
-          
-          <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name Attempted:</strong> ${attemptedName}</p>
-            <p><strong>Time:</strong> ${timestamp}</p>
-            <p><strong>IP Address:</strong> ${ip}</p>
-            <p><strong>Status:</strong> ❌ Access DENIED</p>
-          </div>
-          
-          <p style="color: #666; font-size: 12px;">
-            This is an automated security alert from your Valentine's Day website.
-          </p>
+        <div style="font-family: Arial, sans-serif; padding:20px;">
+          <h2 style="color:#e74c3c;">⚠️ Unauthorized Access Alert</h2>
+          <p><strong>Name Attempted:</strong> ${attemptedName}</p>
+          <p><strong>IP Address:</strong> ${ip}</p>
+          <p><strong>Time:</strong> ${timestamp}</p>
+          <p><strong>Status:</strong> ❌ Access DENIED</p>
         </div>
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log('📧 Alert email sent for unauthorized attempt:', attemptedName);
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("📧 Alert email sent successfully");
+    console.log("Message ID:", info.messageId);
+
+    return true;
+
   } catch (error) {
-    console.error('❌ Error sending alert email:', error.message);
+    console.error("❌ FULL Email Sending Error:");
+    console.error(error);
+    return false;
   }
 };
 
@@ -157,14 +162,15 @@ app.post('/api/verify-user', async (req, res) => {
       
       const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
       
-      // Send email alert asynchronously
-      sendUnauthorizedAlert(name, clientIp, timestamp);
+      
+      // Send email alert asynchronously 
+   sendUnauthorizedAlert(name, clientIp, timestamp);
 
-      console.log(`❌ Unauthorized access attempt: ${name}`);
-      return res.json({ 
-        success: false, 
-        message: 'Access Denied! You are not on the special list 💔' 
-      });
+console.log(`❌ Unauthorized access attempt: ${name}`);
+return res.json({ 
+  success: false, 
+  message: 'Access Denied! You are not on the special list 💔' 
+});
     }
   } catch (error) {
     console.error('Server error:', error);
