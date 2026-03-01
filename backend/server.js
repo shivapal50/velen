@@ -23,7 +23,7 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:3000',
-      'https://velen-o7nr.onrender.com'
+      'https://velen-o7nr.onrender.com',
       'https://velen-sigma.vercel.app'
     ];
 
