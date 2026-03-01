@@ -46,18 +46,27 @@ const ALLOWED_USERS = [
 // Email configuration
 let transporter;
 
-try {
+if (!EMAIL_USER || !EMAIL_PASSWORD) {
+  console.error("❌ Email credentials missing in environment variables");
+  transporter = null;
+} else {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for port 465
     auth: {
       user: EMAIL_USER,
-      pass: EMAIL_PASSWORD
+      pass: EMAIL_PASSWORD,
+    },
+  });
+
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error("❌ Email server connection failed:", error);
+    } else {
+      console.log("✅ Email server is ready to send messages");
     }
   });
-  console.log('✅ Email transporter configured successfully');
-} catch (error) {
-  console.error('❌ Error configuring email:', error.message);
-  transporter = null;
 }
 
 // Function to send unauthorized access alert email
