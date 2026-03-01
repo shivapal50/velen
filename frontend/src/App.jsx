@@ -124,7 +124,7 @@ const [photos] = useState([
     setIsLoading(true)
 
     try {
-      const response = await fetch('https://velen-o7nr.onrender.com/api/verify-user', {
+     const response = await fetch('https://velen-o7nr.onrender.com/api/verify-user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
